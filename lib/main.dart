@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'story.dart';
 
 void main() {
   runApp(DestiniApp());
@@ -32,6 +33,21 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
+  Story story = Story();
+  bool secondButtonVisible = true;
+
+  void nextScenario(int choice) {
+    // Progress to next scenario
+    setState(() {
+      story.nextScenario(choice);
+
+      if (story.isFinished()) story.restart();
+
+      // Check if second button shoudl be visible
+      secondButtonVisible = story.buttonShouldBeVisible();
+    });
+  }
+
   RaisedButton buildKey(
       {String text, Color color, VoidCallback onPressed, Color textColor}) {
     return RaisedButton(
@@ -57,7 +73,7 @@ class _GamePageState extends State<GamePage> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'This is where the main story text will go depending on which the user will be able to follow a path.',
+                story.getScenario(),
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.w500,
@@ -77,27 +93,30 @@ class _GamePageState extends State<GamePage> {
               right: 16.0,
             ),
             child: buildKey(
-              text: 'First choice to follow',
+              text: story.getFirstChoice(),
               color: Colors.yellow,
-              onPressed: () => print('first option'),
+              onPressed: () => nextScenario(1),
               textColor: Colors.black,
             ),
           ),
         ),
         Expanded(
           flex: 2,
-          child: Container(
-            padding: EdgeInsets.only(
-              top: 6.0,
-              bottom: 16.0,
-              left: 16.0,
-              right: 16.0,
+          child: Visibility(
+            visible: secondButtonVisible,
+            child: Container(
+              padding: EdgeInsets.only(
+                top: 6.0,
+                bottom: 16.0,
+                left: 16.0,
+                right: 16.0,
+              ),
+              child: buildKey(
+                  text: story.getSecondChoice(),
+                  color: Colors.pink.shade400,
+                  onPressed: () => nextScenario(2),
+                  textColor: Colors.white),
             ),
-            child: buildKey(
-                text: 'Second choice to follow',
-                color: Colors.pink.shade400,
-                onPressed: () => print('second option'),
-                textColor: Colors.white),
           ),
         ),
       ],
